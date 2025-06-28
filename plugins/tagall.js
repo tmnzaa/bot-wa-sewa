@@ -1,13 +1,25 @@
 module.exports = async ({ sock, m, isGroup, meAdmin }) => {
-  const text = m.message?.conversation || '';
-  if (!isGroup || !meAdmin || !text.startsWith('.tagall')) return;
+  if (!isGroup || !meAdmin) return;
 
-  const metadata = await sock.groupMetadata(m.key.remoteJid);
-  const mention = metadata.participants.map(p => p.id);
-  const pesan = text.split(' ').slice(1).join(' ') || '';
+  const msg = m.message?.conversation || '';
+  const jid = m.key.remoteJid;
 
-  await sock.sendMessage(m.key.remoteJid, {
-    text: pesan,
-    mentions: mention
-  });
+  if (msg.startsWith('.tagall')) {
+    const metadata = await sock.groupMetadata(jid);
+    const participants = metadata.participants.map(p => p.id);
+    sock.sendMessage(jid, {
+      text: '',
+      mentions: participants
+    });
+  }
+
+  if (msg.startsWith('.tagall2')) {
+    const text = msg.replace('.tagall2', '').trim();
+    const metadata = await sock.groupMetadata(jid);
+    const participants = metadata.participants.map(p => p.id);
+    sock.sendMessage(jid, {
+      text: text,
+      mentions: participants
+    });
+  }
 };
