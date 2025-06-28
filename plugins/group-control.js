@@ -1,27 +1,36 @@
-const moment = require('moment');
+const schedule = require('node-schedule');
 
 module.exports = async ({ sock, m, isGroup, meAdmin }) => {
-  const text = m.message?.conversation || '';
   if (!isGroup || !meAdmin) return;
+  const msg = m.message?.conversation || '';
 
-  if (text === '.open') {
-    await sock.groupSettingUpdate(m.key.remoteJid, 'not_announcement');
+  const jid = m.key.remoteJid;
+
+  if (msg.startsWith('.open ')) {
+    const jam = msg.split(' ')[1];
+    schedule.scheduleJob(jam + ':00', () => {
+      sock.groupSettingUpdate(jid, 'not_announcement');
+      sock.sendMessage(jid, { text: `Grup dibuka otomatis jam ${jam}` });
+    });
+    return sock.sendMessage(jid, { text: `Akan buka jam ${jam}` }, { quoted: m });
   }
 
-  if (text === '.close') {
-    await sock.groupSettingUpdate(m.key.remoteJid, 'announcement');
+  if (msg.startsWith('.close ')) {
+    const jam = msg.split(' ')[1];
+    schedule.scheduleJob(jam + ':00', () => {
+      sock.groupSettingUpdate(jid, 'announcement');
+      sock.sendMessage(jid, { text: `Grup ditutup otomatis jam ${jam}` });
+    });
+    return sock.sendMessage(jid, { text: `Akan tutup jam ${jam}` }, { quoted: m });
   }
 
-  if (text.startsWith('.open ') || text.startsWith('.close ')) {
-    const [cmd, jam] = text.split(' ');
-    const now = moment().format('HH:mm');
+  if (msg === '.open') {
+    sock.groupSettingUpdate(jid, 'not_announcement');
+    return sock.sendMessage(jid, { text: 'Grup dibuka' });
+  }
 
-    if (now === jam) {
-      if (cmd === '.open') {
-        await sock.groupSettingUpdate(m.key.remoteJid, 'not_announcement');
-      } else {
-        await sock.groupSettingUpdate(m.key.remoteJid, 'announcement');
-      }
-    }
+  if (msg === '.close') {
+    sock.groupSettingUpdate(jid, 'announcement');
+    return sock.sendMessage(jid, { text: 'Grup ditutup' });
   }
 };
