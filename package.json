@@ -1,0 +1,12 @@
+{
+  "name": "bot-wa-sewa",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "@adiwajshing/baileys": "^4.4.0",
+    "moment": "^2.29.4"
+  }
+}
