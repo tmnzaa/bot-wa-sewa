@@ -14,7 +14,9 @@ function getPaket(jid) {
 
 async function start() {
   const sock = makeWASocket({ auth: state, printQRInTerminal: true });
+
   sock.ev.on('creds.update', saveCreds);
+
   sock.ev.on('connection.update', ({ connection }) => {
     if (connection === 'open') console.log('✅ Bot aktif!');
   });
